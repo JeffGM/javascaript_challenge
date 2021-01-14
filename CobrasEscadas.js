@@ -1,20 +1,20 @@
-'use strict';
+"use strict";
 
 class CobrasEscadas {
     constructor() {
         this.gameIsOver = false;
-        this.initBoard();
-        this.initPlayersPositions();
+        this._initBoard();
+        this._initPlayersPositions();
     }
 
-    initPlayersPositions() {
+    _initPlayersPositions() {
         this.players = {
             1: {position: 0},
             2: {position: 0},
         };
     }
 
-    initBoard() {
+    _initBoard() {
         this.finalPos = 100;
         this.currentPlayerIndex = 1;
 
@@ -45,18 +45,18 @@ class CobrasEscadas {
         };
     }
 
-    setNextPlayerToPlay() {
+    _setNextPlayerToPlay() {
         let nextPlayer = this.currentPlayerIndex + 1;
 
         if(this.players[nextPlayer] === undefined)
-            nextPlayer = 0;
+            nextPlayer = 1;
 
         this.currentPlayerIndex = nextPlayer;
     }
 
     jogar(dado1, dado2) {
         if(this.gameIsOver)
-            return this.showGameIsOver();
+            return this._showGameIsOver();
 
         if(!Number.isInteger(dado1) || !Number.isInteger(dado2))
             throw new Error("Os dados devem conter valores numéricos!");
@@ -64,48 +64,50 @@ class CobrasEscadas {
         if(dado1 > 6 || dado1 < 1 || dado2 > 6 || dado2 < 1)
             throw new Error("Os dados devem ter valores entre 1 e 6!");
 
-        let gameWillContinue = this.determineCurrentPlayerPosition(dado1 + dado2);
+        let gameWillContinue = this._determineCurrentPlayerPosition(dado1 + dado2);
 
         if(gameWillContinue) {
             let lastPlayer = this.currentPlayerIndex;
-            this.setNextPlayerToPlay();
+            this._setNextPlayerToPlay();
 
-            return this.showGameStatus(lastPlayer);
+            return this._showGameStatus(lastPlayer);
         } else {
-            return this.endGameAndShowWinner(this.currentPlayerIndex);
+            return this._endGameAndShowWinner(this.currentPlayerIndex);
         }
     }
 
-    determineCurrentPlayerPosition(diceSum) {
+    _determineCurrentPlayerPosition(diceSum) {
         let newPosition = this.players[this.currentPlayerIndex].position + diceSum;
 
         if(this.cobrasPos[newPosition] !== undefined) {
             newPosition = this.cobrasPos[newPosition].goToPosition;
 
         } else if(this.escadasPos[newPosition] !== undefined) {
-            newPosition = this.cobrasPos[newPosition].goToPosition;
+            newPosition = this.escadasPos[newPosition].goToPosition;
 
         } else if(newPosition > this.finalPos) {
-            newPosition = this.players[this.currentPlayerIndex].position + diceSum - this.finalPos;
+            newPosition = this.finalPos - (this.players[this.currentPlayerIndex].position + diceSum - this.finalPos);
 
         } else if(newPosition === this.finalPos){
             return false;
         }
 
         this.players[this.currentPlayerIndex].position = newPosition;
-        return true
+        return true;
     }
 
-    showGameIsOver() {
+    _showGameIsOver() {
         return "O jogo acabou!";
     }
 
-    showGameStatus(lastPlayer) {
+    _showGameStatus(lastPlayer) {
         return `Jogador ${lastPlayer} está na casa ${this.players[lastPlayer].position}`;
     }
 
-    endGameAndShowWinner(winner) {
+    _endGameAndShowWinner(winner) {
         this.gameIsOver = true;
         return `Jogador ${winner} Venceu!`;
     }
 }
+
+module.exports = CobrasEscadas
