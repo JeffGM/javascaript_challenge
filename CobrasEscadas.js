@@ -2,6 +2,7 @@
 
 class CobrasEscadas {
     constructor() {
+        this.gameIsOver = false;
         this.initBoard();
         this.initPlayersPositions();
     }
@@ -54,6 +55,9 @@ class CobrasEscadas {
     }
 
     jogar(dado1, dado2) {
+        if(this.gameIsOver)
+            return this.showGameIsOver();
+
         if(!Number.isInteger(dado1) || !Number.isInteger(dado2))
             throw new Error("Os dados devem conter valores numéricos!");
 
@@ -63,10 +67,12 @@ class CobrasEscadas {
         let gameWillContinue = this.determineCurrentPlayerPosition(dado1 + dado2);
 
         if(gameWillContinue) {
-            this.showGameStatus(this.currentPlayerIndex);
+            let lastPlayer = this.currentPlayerIndex;
             this.setNextPlayerToPlay();
+
+            return this.showGameStatus(lastPlayer);
         } else {
-            this.endGame(this.currentPlayerIndex);
+            return this.endGameAndShowWinner(this.currentPlayerIndex);
         }
     }
 
@@ -90,6 +96,16 @@ class CobrasEscadas {
         return true
     }
 
-    showGameStatus(lastPlayer) {}
-    endGame(winner) {}
+    showGameIsOver() {
+        return "O jogo acabou!";
+    }
+
+    showGameStatus(lastPlayer) {
+        return `Jogador ${lastPlayer} está na casa ${this.players[lastPlayer].position}`;
+    }
+
+    endGameAndShowWinner(winner) {
+        this.gameIsOver = true;
+        return `Jogador ${winner} Venceu!`;
+    }
 }
