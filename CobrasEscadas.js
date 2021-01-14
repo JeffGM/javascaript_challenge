@@ -7,11 +7,16 @@ class CobrasEscadas {
     }
 
     initPlayersPositions() {
-        this.firstPlayerPosition = 0;
-        this.secondPlayerPosition = 0;
+        this.players = {
+            1: {position: 0},
+            2: {position: 0},
+        };
     }
 
     initBoard() {
+        this.finalPos = 100;
+        this.currentPlayerIndex = 1;
+
         this.cobrasPos = {
             16: {goToPosition: 6},
             46: {goToPosition: 25},
@@ -39,14 +44,52 @@ class CobrasEscadas {
         };
     }
 
+    setNextPlayerToPlay() {
+        let nextPlayer = this.currentPlayerIndex + 1;
+
+        if(this.players[nextPlayer] === undefined)
+            nextPlayer = 0;
+
+        this.currentPlayerIndex = nextPlayer;
+    }
+
     jogar(dado1, dado2) {
         if(!Number.isInteger(dado1) || !Number.isInteger(dado2))
-            throw new Error("os dados devem conter valores numéricos!");
+            throw new Error("Os dados devem conter valores numéricos!");
 
         if(dado1 > 6 || dado1 < 1 || dado2 > 6 || dado2 < 1)
             throw new Error("Os dados devem ter valores entre 1 e 6!");
 
+        let gameWillContinue = this.determineCurrentPlayerPosition(dado1 + dado2);
 
-
+        if(gameWillContinue) {
+            this.showGameStatus(this.currentPlayerIndex);
+            this.setNextPlayerToPlay();
+        } else {
+            this.endGame(this.currentPlayerIndex);
+        }
     }
+
+    determineCurrentPlayerPosition(diceSum) {
+        let newPosition = this.players[this.currentPlayerIndex].position + diceSum;
+
+        if(this.cobrasPos[newPosition] !== undefined) {
+            newPosition = this.cobrasPos[newPosition].goToPosition;
+
+        } else if(this.escadasPos[newPosition] !== undefined) {
+            newPosition = this.cobrasPos[newPosition].goToPosition;
+
+        } else if(newPosition > this.finalPos) {
+            newPosition = this.players[this.currentPlayerIndex].position + diceSum - this.finalPos;
+
+        } else if(newPosition === this.finalPos){
+            return false;
+        }
+
+        this.players[this.currentPlayerIndex].position = newPosition;
+        return true
+    }
+
+    showGameStatus(lastPlayer) {}
+    endGame(winner) {}
 }
